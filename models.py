@@ -1,0 +1,75 @@
+import datetime
+import sys
+import urllib2
+
+from google.appengine.ext import db
+
+
+FETCH_THEM_ALL = 65535
+
+class Option(db.Model):
+
+    symbol = db.StringProperty(required=True)
+    date = db.DateProperty(required=True)
+    type = db.StringProperty(required=True, choices=set(["c","p"]))
+    contractname = db.StringProperty()
+    strike = db.FloatProperty()
+    last = db.FloatProperty()
+    bid = db.FloatProperty()
+    ask = db.FloatProperty()
+    underlying = db.FloatProperty()
+    volume = db.IntegerProperty()
+    openinterest = db.IntegerProperty()       
+
+    @classmethod
+    def to_dict(self):
+        return dict([(p, unicode(getattr(self, p))) for p in self.properties()])
+    @classmethod
+    def get_all(cls):
+        q = db.Query(Option)
+        q.order('-date')
+        return q.fetch(FETCH_THEM_ALL)
+
+    @classmethod
+    def get_all_symbol(cls, symbol):
+        q = db.Query(Option)
+        q.filter('symbol = ', symbol)
+        q.order('-date')
+        return q.fetch(FETCH_THEM_ALL)
+        
+    
+
+    def __unicode__(self):
+        return self.__str__()
+
+    def __str__(self):
+        return '[%s] %s' %\
+               (self.date.strftime('%Y/%m/%d'), self.contractname)
+
+class Stock(db.Model):
+
+    symbol = db.StringProperty(required=True)
+    cboe_id = db.StringProperty()
+
+
+    @classmethod
+    def get_all(cls):
+        q = db.Query(Stock)
+        return q.fetch(FETCH_THEM_ALL)
+
+    def cboe_query_gen(self):
+        if self.cboe_id:
+            q = "http://delayedquotes.cboe.com/json/options_chain.html?" \
+                    + self.cobe_id
+        else:
+            url = 'http://delayedquotes.cboe.com/new/www/symbol_lookup.html?symbol_lookup=%s' %\
+                      self.symbol
+            try:
+                result = urllib2.urlopen(url)
+                q = result.url.replace('new/stocks/quote.html', 'json/options_chain.html')
+                self.cboe_id = q.split("?")[1]
+                self.put()                
+            except urllib2.URLError, e:
+                handleError(e)
+
+        return q
