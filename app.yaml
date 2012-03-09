@@ -22,7 +22,7 @@ handlers:
 
 - url: /admin/.*
   script: admin.py
-  login: admin
+  # login: admin
 
 - url: /.*
   script: not_found.py

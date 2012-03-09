@@ -10,8 +10,9 @@ FETCH_THEM_ALL = 65535
 class Option(db.Model):
 
     symbol = db.StringProperty(required=True)
-    date = db.DateProperty(required=True)
-    type = db.StringProperty(required=True, choices=set(["c","p"]))
+    date = db.DateProperty(required=True, auto_now_add=True)
+    expiration = db.DateProperty()
+    type = db.StringProperty(required=True, choices=set([u"calls",u"puts"]))
     contractname = db.StringProperty()
     strike = db.FloatProperty()
     last = db.FloatProperty()
@@ -50,26 +51,15 @@ class Stock(db.Model):
 
     symbol = db.StringProperty(required=True)
     cboe_id = db.StringProperty()
+    exp_months = db.ListProperty(datetime.date)
 
 
     @classmethod
     def get_all(cls):
         q = db.Query(Stock)
         return q.fetch(FETCH_THEM_ALL)
-
-    def cboe_query_gen(self):
-        if self.cboe_id:
-            q = "http://delayedquotes.cboe.com/json/options_chain.html?" \
-                    + self.cobe_id
-        else:
-            url = 'http://delayedquotes.cboe.com/new/www/symbol_lookup.html?symbol_lookup=%s' %\
-                      self.symbol
-            try:
-                result = urllib2.urlopen(url)
-                q = result.url.replace('new/stocks/quote.html', 'json/options_chain.html')
-                self.cboe_id = q.split("?")[1]
-                self.put()                
-            except urllib2.URLError, e:
-                handleError(e)
-
-        return q
+    @classmethod
+    def get(cls,symbol):
+        q = db.Query(Stock)
+        q.filter('symbol=', symbol)
+        return q.get()
