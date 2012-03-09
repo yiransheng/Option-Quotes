@@ -61,5 +61,5 @@ class Stock(db.Model):
     @classmethod
     def get(cls,symbol):
         q = db.Query(Stock)
-        q.filter('symbol=', symbol)
+        q.filter('symbol = ', symbol)
         return q.get()

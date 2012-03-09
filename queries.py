@@ -24,8 +24,14 @@ OPTIONS_CHAIN_JSON = 'http://delayedquotes.cboe.com/json/options_chain.html?'
 # -----------------------------------------------------------------------------
 
 class Cboe:
-    def __init__(self, symbol, idLookup=False, expirationLookup=False):
-        self.stock = Stock(symbol=symbol)
+    def __init__(self, symbol, \
+                 idLookup=False, \
+                 expirationLookup=False, \
+                 stock=None):
+        if stock:
+            self.stock=stock
+        else:
+            self.stock = Stock(symbol=symbol)
         if idLookup:
             self.symbol_lookup()
         if expirationLookup:

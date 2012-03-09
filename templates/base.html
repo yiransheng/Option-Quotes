@@ -4,5 +4,14 @@
         <p>{{ stock.symbol }}</p>
         <p>{{ stock.cboe_id }}</p>
     {% endfor %}
+    <form action='/admin/modify/' method='post'>
+         <input name='symbol' value='AAPL' />
+         
+         <select name='action'>
+             <option value='1'>New</option>
+             <option value='2'>Update</option>
+         </select>
+         <input type='submit' value='Go' />
+    </form>
   </body>
 </html>

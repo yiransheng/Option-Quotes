@@ -26,13 +26,29 @@ class MainPage(request.WebPageHandler):
         self.response.out.write(self.render_template('base.html', \
                                                       template_values))
 class ModifyStockInfo(request.WebPageHandler):
-    def get(self):
-        pass
-    def update_all():
+    def post(self):
+        symbol = self.request.get('symbol')
+        action = self.request.get('action')
+        if action == '2':
+            self.update_all()
+            self.redirect('/admin/')
+            
+        if action == '1':
+            cboeQuery = Cboe(symbol, True, True)
+            stock = Stock.get(cboeQuery.stock.symbol)
+            if stock:
+                stock.cboe_id = cboeQuery.stock.cboe_id
+                stock.exp_months = cboeQuery.stock.exp_months
+            else:
+                stock = cboeQuery.stock
+            stock.put()
+            self.redirect('/admin/')
+            
+    def update_all(self):
         stocks = Stock.get_all()
         for stock in stocks:
             cboeQuery = Cboe(stock.symbol, True, True)
-            stock.cboe_id = cboeQuery.stock.cobe_id
+            stock.cboe_id = cboeQuery.stock.cboe_id
             stock.exp_months = cboeQuery.stock.exp_months
             stock.put()
 
