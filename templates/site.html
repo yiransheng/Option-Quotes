@@ -5,7 +5,7 @@
 
   <body>
      <p>Option Quotes Api</p>
-     <p></p>
+     <p>Support the following symbols, data scraped from {{ external }}. For experimental purposes only, please delete data within 24 hours. Usage: /csv?symbol=</p>
     {% for stock in stocks %}
         <span><a href='{{ external }}?{{ stock.cboe_id }}'> {{ stock.symbol }}</a> </span>
     {% endfor %}

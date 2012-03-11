@@ -5,10 +5,12 @@ Base class for requests
 import os
 import datetime
 import sys
+from google.appengine.api import urlfetch
 import urllib2
 
 from BeautifulSoup import BeautifulSoup 
 from django.utils import simplejson
+
 
 from models import *
 
@@ -19,6 +21,18 @@ DATA_SRC = 'http://delayedquotes.cboe.com'
 SYMBOL_LOOKUP_URL = 'http://delayedquotes.cboe.com/new/www/symbol_lookup.html?symbol_lookup='
 OPTIONS_CHAIN_HTML = 'http://delayedquotes.cboe.com/new/options/options_chain.html?'
 OPTIONS_CHAIN_JSON = 'http://delayedquotes.cboe.com/json/options_chain.html?'
+# -----------------------------------------------------------------------------
+# Patch & Extend appengine fetch api's deadline time
+# -----------------------------------------------------------------------------
+old_fetch = urlfetch.fetch
+def new_fetch(url, payload=None, method=urlfetch.GET, headers={},
+          allow_truncated=False, follow_redirects=True,
+          deadline=600.0, *args, **kwargs):
+  return old_fetch(url, payload, method, headers, allow_truncated,
+                   follow_redirects, deadline, *args, **kwargs)
+urlfetch.fetch = new_fetch
+
+
 # -----------------------------------------------------------------------------
 # Classes
 # -----------------------------------------------------------------------------
