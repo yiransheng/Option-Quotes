@@ -1,6 +1,5 @@
 
-
-This is a Appengine api scraping Option Quotes from delayedquotes.cboe.com, and generate csv files.
+This is an Appengine api scraping Option Quotes from delayedquotes.cboe.com, and generate csv files.
 
 Modify cron.yaml to support CRON job thus collecting historical data over time. 
 
