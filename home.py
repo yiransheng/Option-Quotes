@@ -7,89 +7,66 @@ import urllib2
 
 ###########
 from models import *
+from queries import *
+import request 
 
-class MainPage(webapp.RequestHandler):
+def tocsv(option, settings = {'dateformat' : '%Y-%m-%d',
+                             'expformat' : '%Y-%m',
+                             'na': 'NA',
+                              'sep': ','
+                             }):
+    symbol = option.symbol
+    date = option.date.strftime(settings['dateformat'])
+    expiration = option.expiration.strftime(settings['expformat'])
+    type = option.type
+    contractname = option.contractname
+    strike = str(option.strike) if option.strike>0 else settings['na']
+    last = str(option.last) if option.last>0 else settings['na']
+    change = str(option.change) if option.change>0 else settings['na']
+    bid = str(option.bid) if option.bid>0 else settings['na']
+    ask = str(option.ask) if option.ask>0 else settings['na']
+    underlying = str(option.underlying) if option.underlying>0 else settings['na']
+    volume = str(option.volume) if option.volume>0 else settings['na']
+    openinterest = str(option.openinterest) if option.openinterest>0 else settings['na']
+
+    return settings['sep'].join([date, symbol, underlying, contractname, \
+                                 type, strike, last, change, bid, ask, volume, \
+                                 openinterest])
+    
+class MainPage(request.WebPageHandler):
     def get(self):
-        stock = Stock.get('BAC')
-        if stock:            
-            print('here i am')
-        else:
-            print('it is new')
-            stock = Stock(symbol='BAC')
-            stock.put()
-        url = stock.cboe_query_gen()
-        jsontxt = self.fetch_json(url)
-        print(simplejson.loads(jsontxt)["options"])
-        self.format_data(jsontxt, 'BAC', None)
+        stocks = Stock.get_all()
+        for stock in stocks:
+            cboeQuery = Cboe('', False, False, stock)
+            cboeQuery.option_chain_store()
         
-    def fetch_json(self, url):
-        try:
-            option_json = urllib2.urlopen(url)
-            # return simplejson.loads(option_json.read())
-            return option_json.read()
-        except urllib2.URLError, e:
-            handleError(e)
-            
-    def format_data(self, jsontxt, symbol, expiration):
-        options_raw = simplejson.loads(jsontxt)["options"]
-        for type in [u"calls",u"puts"]:
-            for call in options_raw[type]:
-                i = options_raw[type].index(call)                
-                contractname = call[0]
-                try:
-                    last = float(call[1])
-                except:
-                    last = -1.0
-                try:
-                    change = float(call[2])
-                except:
-                    change = -1.0
-                try:
-                    bid = float(call[3])
-                except:
-                    bid = -1.0
-                try:
-                    ask = float(call[4])
-                except:
-                    ask = -1.0
-                try:
-                    volume = int(call[5])
-                except:
-                    volume = -1
-                try:
-                    openinterest = int(call[6])
-                except:
-                    openinterest = -1
-                try:
-                    underlying = float(options_raw[u"uprice"])
-                except:
-                    underlying = -1.0
-                try:
-                    strike = float(options_raw[u"strikes"][i])
-                except:
-                    strike = -1.0
+class CsvGen(request.WebPageHandler):
+    def get(self):
+        symbol = self.request.get('symbol')
+        start = self.request.get('start')
+        end = self.request.get('end')
+        startdate = datetime.datetime.strptime(start, '%Y-%m-%d').date() \
+                        if start else datetime.date(1990,12,4)
+        enddate = datetime.datetime.strptime(end, '%Y-%m-%d').date() \
+                  if end else datetime.datetime.now().date()
+        options = Option.get_all_symbol(symbol) if symbol else None
+        if not options:
+            return False
+        csvlines = ["date,symbol,underlying,contractname,type,strike,last,change,bid,ask,volume,openinterest"]
+        for option in options:
+            if option.date >startdate and option.date<enddate:
+                csvlines.append(tocsv(option))
 
-                option = Option(symbol=symbol, 
-                                # expiration = expiration, 
-                                type = type, 
-                                contractname = contractname, 
-                                strike = strike, 
-                                last = last, 
-                                change = change, 
-                                bid = bid, 
-                                ask = ask, 
-                                volume = volume,
-                                openinterest = openinterest,
-                                underlying = underlying)
-
-                option.put()
-
-                    
+        csvfile = "\n".join(csvlines)
+        self.response.headers['Content-Type'] = 'application/csv'
+        self.response.headers['Content-Disposition'] = 'attachment; filename='+symbol+'.csv'
+        self.response.out.write(csvfile)
                 
         
 
 application = webapp.WSGIApplication(
-                                     [('/', MainPage)],
+                                     [('/', MainPage),
+                                      ('/csv/?$', CsvGen)],
                                      debug=True)
 
 def main():

@@ -51,19 +51,22 @@ class Cboe:
 
         return cboe_id
 
-    def json_lookup(self, expiration=""):
+    def json_lookup(self, expiration=None):
         """
         Lookup the json format option chain for a given expiration month, and
         convert it to a Option model
         """
+        if expiration:
+            expiration_str =  expiration.strftime('%Y%m')
         cboe_id = self.stock.cboe_id if self.stock.cboe_id else self.symbol_lookup()
-        url = "".join([OPTIONS_CHAIN_JSON,cboe_id,"&expirationdate=",expiration])
+        url = "".join([OPTIONS_CHAIN_JSON,cboe_id,"&expirationdate=",expiration_str])
         try:
             option_jsontxt = urllib2.urlopen(url).read()
         except urllib2.URLError, e:
             return None
 
         options_raw= simplejson.loads(option_jsontxt)["options"]
+        options = []
         for type in [u"calls",u"puts"]:
             for call in options_raw[type]:
                 i = options_raw[type].index(call)                
@@ -101,8 +104,8 @@ class Cboe:
                 except:
                     strike = -1.0
 
-                option = Option(symbol=symbol, 
-                                # expiration = expiration, 
+                option = Option(symbol=self.stock.symbol, 
+                                expiration = expiration, 
                                 type = type, 
                                 contractname = contractname, 
                                 strike = strike, 
@@ -113,8 +116,9 @@ class Cboe:
                                 volume = volume,
                                 openinterest = openinterest,
                                 underlying = underlying)
+                options.append(option)
 
-        return option
+        return options
 
     
     def expiration_lookup(self):
@@ -140,6 +144,27 @@ class Cboe:
         self.stock.exp_months = exp_months
         
         return exp_months
+
+    def option_chain_store(self):
+        """
+        Store the option chains for all expirations
+        """
+        if not self.stock.exp_months:
+            self.expiration_lookup()
+            
+        for expdate in self.stock.exp_months:            
+            options = self.json_lookup(expdate)
+            now = datetime.datetime.now()
+            today = now.date()
+            previous = Option.get(self.stock.symbol, today, expdate)
+            if len(previous):
+                for p in previous:
+                    p.delete()                
+            for option in options:
+                option.put()
+            
+            
+            
         
         
         

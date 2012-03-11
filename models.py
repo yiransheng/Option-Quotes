@@ -16,6 +16,7 @@ class Option(db.Model):
     contractname = db.StringProperty()
     strike = db.FloatProperty()
     last = db.FloatProperty()
+    change = db.FloatProperty()
     bid = db.FloatProperty()
     ask = db.FloatProperty()
     underlying = db.FloatProperty()
@@ -30,13 +31,20 @@ class Option(db.Model):
         q = db.Query(Option)
         q.order('-date')
         return q.fetch(FETCH_THEM_ALL)
-
     @classmethod
     def get_all_symbol(cls, symbol):
         q = db.Query(Option)
         q.filter('symbol = ', symbol)
         q.order('-date')
         return q.fetch(FETCH_THEM_ALL)
+    @classmethod
+    def get(cls, symbol, date, expiration):
+        q = db.Query(Option)
+        q.filter('symbol = ', symbol)
+        q.filter('date = ', date)
+        q.filter('expiration = ', expiration)
+        return q.fetch(FETCH_THEM_ALL)
+        
         
     
 

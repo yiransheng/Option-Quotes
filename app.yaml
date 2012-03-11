@@ -25,4 +25,4 @@ handlers:
   # login: admin
 
 - url: /.*
-  script: not_found.py
+  script: home.py
