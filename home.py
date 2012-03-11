@@ -37,8 +37,7 @@ class MainPage(request.WebPageHandler):
     def get(self):
         stocks = Stock.get_all()
         for stock in stocks:
-            cboeQuery = Cboe('', False, False, stock)
-            cboeQuery.option_chain_store()
+            pass
         
 class CsvGen(request.WebPageHandler):
     def get(self):
