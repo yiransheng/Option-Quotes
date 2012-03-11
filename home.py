@@ -8,7 +8,8 @@ import urllib2
 ###########
 from models import *
 from queries import *
-import request 
+import request
+import defs
 
 def tocsv(option, settings = {'dateformat' : '%Y-%m-%d',
                              'expformat' : '%Y-%m',
@@ -36,8 +37,14 @@ def tocsv(option, settings = {'dateformat' : '%Y-%m-%d',
 class MainPage(request.WebPageHandler):
     def get(self):
         stocks = Stock.get_all()
-        for stock in stocks:
-            pass
+        template_values = {
+            'title': defs.APP_NAME,
+            'external': OPTIONS_CHAIN_HTML,
+            'stocks': stocks,
+        }
+        
+        self.response.out.write(self.render_template('site.html', \
+                                                      template_values))
         
 class CsvGen(request.WebPageHandler):
     def get(self):

@@ -1,0 +1,25 @@
+<html>
+  <head>
+    <title>{{ title }}</title>
+    <style>
+       #container{ width: 400px; border: 1px solid #222; font-size: 12px; padding: 30px; background: #fbfafa; border-radius: 4px;box-shadow: 3px 3px 4px 4px #ccc; margin-left: auto;margin-right: auto;}
+       .stock{ background: #f1f1f3; display: block; border: 1px dotted #446; width: 90%; padding-left: 10%;}
+    </style>
+  </head>
+  <body>
+     <div id='container'>   
+     <h1>List of Symbols in Database</h1> 
+    <form action='/admin/modify/' method='post'>
+         <input name='symbol' value='AAPL' />         
+         <select name='action'>
+             <option value='1'>New</option>
+             <option value='2'>Update</option>
+         </select>
+         <input type='submit' value='Go' />
+    </form>
+    {% for stock in stocks %}
+        <div class='stock'><p><a href='{{ external }}?{{ stock.cboe_id }}'>{{ stock.symbol }}</p></div>
+    {% endfor %}
+    </div>
+  </body>
+</html>

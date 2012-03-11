@@ -1,0 +1,13 @@
+<html>
+  <head>
+     <title>{{ title }}</title>
+  </head>
+
+  <body>
+     <p>Option Quotes Api</p>
+     <p></p>
+    {% for stock in stocks %}
+        <span><a href='{{ external }}?{{ stock.cboe_id }}'> {{ stock.symbol }}</a> </span>
+    {% endfor %}
+  </body>
+</html>
