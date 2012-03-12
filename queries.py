@@ -76,9 +76,13 @@ class Cboe:
         url = "".join([OPTIONS_CHAIN_JSON,cboe_id,"&expirationdate=",expiration_str])
         try:
             option_jsontxt = urllib2.urlopen(url).read()
+            return option_jsontxt
         except urllib2.URLError, e:
-            return None
-
+            return False
+          
+    def json_to_option(self, option_jsontxt):
+        if not option_jsontxt:
+            return False
         options_raw= simplejson.loads(option_jsontxt)["options"]
         options = []
         for type in [u"calls",u"puts"]:
@@ -158,7 +162,63 @@ class Cboe:
         self.stock.exp_months = exp_months
         
         return exp_months
+    def json_to_csv(self, option_jsontxt, expdate, settings = \
+                            {'dateformat' : '%Y-%m-%d',
+                             'expformat' : '%Y-%m',
+                             'na': 'NA',
+                              'sep': ','
+                             }):
+        symbol = self.stock.symbol
+        now = datetime.datetime.now()
+        today = now.date()
+        date = today.strftime(settings['dateformat'])
+        expiration = expdate.strftime(settings['expformat'])
+        options_raw= simplejson.loads(option_jsontxt)["options"]
+        options_csv = []
+        for type in [u"calls",u"puts"]:
+            for call in options_raw[type]:
+                i = options_raw[type].index(call)                
+                contractname = call[0]
+                try:
+                    last = str(float(call[1]))
+                except:
+                    last = settings['na']
+                try:
+                    change = str(float(call[2]))
+                except:
+                    change = settings['na']
+                try:
+                    bid = str(float(call[3]))
+                except:
+                    bid = settings['na']
+                try:
+                    ask = str(float(call[4]))
+                except:
+                    ask = settings['na']
+                try:
+                    volume = str(int(call[5]))
+                except:
+                    volume = settings['na']
+                try:
+                    openinterest = str(int(call[6]))
+                except:
+                    openinterest = settings['na']
+                try:
+                    underlying = str(float(options_raw[u"uprice"]))
+                except:
+                    underlying = settings['na']
+                try:
+                    strike = str(float(options_raw[u"strikes"][i]))
+                except:
+                    strike = settings['na']
 
+                option_csv = settings['sep'].join([date, symbol, underlying, contractname, \
+                                 type, strike, last, change, bid, ask, volume, \
+                                 openinterest])
+                options_csv.append(option_csv)
+
+        return "\n".join(options_csv)
+                
     def option_chain_store(self):
         """
         Store the option chains for all expirations
@@ -167,15 +227,30 @@ class Cboe:
             self.expiration_lookup()
             
         for expdate in self.stock.exp_months:            
-            options = self.json_lookup(expdate)
-            now = datetime.datetime.now()
-            today = now.date()
-            previous = Option.get(self.stock.symbol, today, expdate)
-            if len(previous):
-                for p in previous:
-                    p.delete()                
-            for option in options:
-                option.put()
+            option_jsontxt = self.json_lookup(expdate)
+            if not option_jsontxt:
+                return False
+            else:
+                options_csv = self.json_to_csv(option_jsontxt, expdate)
+            today = datetime.datetime.now().date()
+            day = today.strftime("%Y%m%d")
+            exp = expdate.strftime("%Y%m")
+            id = self.stock.symbol + day + exp
+            previous = OptionData.get(id)
+            if previous:
+                previous.data = options_csv
+                previous.put()
+                return True
+            else: 
+                try:    
+                    optionData = OptionData(symbol = self.stock.symbol,
+                                    expiration = expdate,
+                                    data = options_csv,
+                                    id = id)
+                    optionData.put()
+                except:
+                    return False
+
             
             
             

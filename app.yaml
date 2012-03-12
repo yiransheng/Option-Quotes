@@ -1,4 +1,4 @@
-application: oqapi
+application: getoptionquotes
 version: 1
 runtime: python
 api_version: 1

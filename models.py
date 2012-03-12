@@ -55,6 +55,30 @@ class Option(db.Model):
         return '[%s] %s' %\
                (self.date.strftime('%Y/%m/%d'), self.contractname)
 
+class OptionData(db.Model):
+    symbol = db.StringProperty(required=True)
+    date = db.DateProperty(required=True, auto_now_add=True)
+    expiration = db.DateProperty()
+    data = db.TextProperty(required=True)
+    id = db.StringProperty(required=True)
+
+    @classmethod
+    def get_all(cls):
+        q = db.Query(OptionData)
+        q.order('-date')
+        return q.fetch(FETCH_THEM_ALL)
+    @classmethod
+    def get_all_symbol(cls, symbol):
+        q = db.Query(OptionData)
+        q.filter('symbol = ', symbol)
+        q.order('-date')
+        return q.fetch(FETCH_THEM_ALL)
+    @classmethod
+    def get(cls, id):
+        q = db.Query(OptionData)
+        q.filter('id = ', id)
+        return q.get()
+
 class Stock(db.Model):
 
     symbol = db.StringProperty(required=True)
