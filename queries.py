@@ -27,7 +27,7 @@ OPTIONS_CHAIN_JSON = 'http://delayedquotes.cboe.com/json/options_chain.html?'
 old_fetch = urlfetch.fetch
 def new_fetch(url, payload=None, method=urlfetch.GET, headers={},
           allow_truncated=False, follow_redirects=True,
-          deadline=600.0, *args, **kwargs):
+          deadline=600, *args, **kwargs):
   return old_fetch(url, payload, method, headers, allow_truncated,
                    follow_redirects, deadline, *args, **kwargs)
 urlfetch.fetch = new_fetch

@@ -1,5 +1,5 @@
 application: getoptionquotes
-version: 1
+version: 2
 runtime: python
 api_version: 1
 
@@ -22,11 +22,11 @@ handlers:
 
 - url: /admin/.*
   script: admin.py
-  # login: admin
+  login: admin
 
 - url: /tasks/.*
   script: tasks.py
-  # login: admin
+  login: admin
 
 - url: /.*
   script: home.py
