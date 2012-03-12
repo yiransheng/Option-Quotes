@@ -34,6 +34,11 @@ class ModifyStockInfo(request.WebPageHandler):
         if action == '2':
             self.update_all()
             self.redirect('/admin/')
+        if action == '3':
+            stock = Stock.get(symbol)
+            if stock:
+                stock.delete()
+            self.redirect('/admin/')
             
         if action == '1':
             cboeQuery = Cboe(symbol, True, True)

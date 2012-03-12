@@ -3,7 +3,8 @@
     <title>{{ title }}</title>
     <style>
        #container{ width: 400px; border: 1px solid #222; font-size: 12px; padding: 30px; background: #fbfafa; border-radius: 4px;box-shadow: 3px 3px 4px 4px #ccc; margin-left: auto;margin-right: auto;}
-       .stock{ background: #f1f1f3; display: block; border: 1px dotted #446; width: 90%; padding-left: 10%;}
+       .stock{ background: #f1f1f3; display: block; border: 1px dotted #446; width: 90%; padding-left: 5%; padding-right: 5%}
+       span{display: block; width: 45px; height: 15px; background: white; border-radius: 13px; text-align: center;float: right;box-shadow: 1px 1px 2px 2px #ccc }
     </style>
   </head>
   <body>
@@ -14,11 +15,14 @@
          <select name='action'>
              <option value='1'>New</option>
              <option value='2'>Update</option>
+             <option value='3'>Delete</option>
          </select>
          <input type='submit' value='Go' />
     </form>
     {% for stock in stocks %}
-        <div class='stock'><p><a href='{{ external }}?{{ stock.cboe_id }}'>{{ stock.symbol }}</p></div>
+        <div class='stock'>
+           <p><a href='{{ external }}?{{ stock.cboe_id }}'>{{ stock.symbol }}</a><a><span></span></a></p>
+        </div>
     {% endfor %}
     </div>
   </body>
