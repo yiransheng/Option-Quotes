@@ -1,0 +1,6 @@
+
+This is an Appengine api scraping Option Quotes from delayedquotes.cboe.com, and generate csv files.
+
+Modify cron.yaml to support CRON job thus collecting historical data over time. 
+
+The functionality of this app is for experimental purposes only. For research and backtesting, please purchase data from http://www.marketdataexpress.com/.
