@@ -75,7 +75,7 @@ class Cboe:
         cboe_id = self.stock.cboe_id if self.stock.cboe_id else self.symbol_lookup()
         url = "".join([OPTIONS_CHAIN_JSON,cboe_id,"&expirationdate=",expiration_str])
         try:
-            option_jsontxt = urllib2.urlopen(url).read()
+            option_jsontxt = urlfetch.fetch(url, deadline=600).content
             return option_jsontxt
         except urllib2.URLError, e:
             return False
@@ -146,7 +146,7 @@ class Cboe:
         cboe_id = self.stock.cboe_id if self.stock.cboe_id else self.symbol_lookup()
         url = "".join([OPTIONS_CHAIN_HTML,cboe_id])
         try:
-            option_html = urllib2.urlopen(url).read()
+            option_html = urlfetch.fetch(url, deadline=600).content
         except urllib2.URLError, e:
             return None
 
