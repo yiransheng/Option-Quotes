@@ -1,29 +1,23 @@
+<!DOCTYPE HTML>
 <html>
-  <head>
-    <title>{{ title }}</title>
-    <style>
-       #container{ width: 400px; border: 1px solid #222; font-size: 12px; padding: 30px; background: #fbfafa; border-radius: 4px;box-shadow: 3px 3px 4px 4px #ccc; margin-left: auto;margin-right: auto;}
-       .stock{ background: #f1f1f3; display: block; border: 1px dotted #446; width: 90%; padding-left: 5%; padding-right: 5%}
-       span{display: block; width: 45px; height: 15px; background: white; border-radius: 13px; text-align: center;float: right;box-shadow: 1px 1px 2px 2px #ccc }
-    </style>
-  </head>
-  <body>
-     <div id='container'>   
+<head>
+<title>{{ title }}</title>
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"></script>
+<script type="text/javascript" src="http://ajax.cdnjs.com/ajax/libs/underscore.js/1.1.4/underscore-min.js"></script>
+<script type="text/javascript" src="http://ajax.cdnjs.com/ajax/libs/backbone.js/0.3.3/backbone-min.js"></script>
+<script type="text/javascript" src='/scripts/admin.js'></script>
+<style>
+#wrapper{ width: 400px; border: 1px solid #222; font-size: 12px; padding: 30px; background: #fbfafa; border-radius: 4px;box-shadow: 3px 3px 4px 4px #ccc; margin-left: auto;margin-right: auto; margin-top: 10px;}
+.stock{ background: #f1f1f3; display: block; border: 1px dotted #446; width: 90%; padding-left: 5%; padding-right: 5%;margin-top: 5px;}
+span.close{display: block; width: 45px; height: 12px; background: white; border-radius: 13px; text-align: center;float: right;box-shadow: 1px 1px 2px 2px #ccc; font-size: 10px; }
+a{text-decoration: none;}   ?
+</style>
+</head>
+<body>
+<div id='wrapper'>   
      <h1>List of Symbols in Database</h1> 
-    <form action='/admin/modify/' method='post'>
-         <input name='symbol' value='AAPL' />         
-         <select name='action'>
-             <option value='1'>New</option>
-             <option value='2'>Update</option>
-             <option value='3'>Delete</option>
-         </select>
-         <input type='submit' value='Go' />
-    </form>
-    {% for stock in stocks %}
-        <div class='stock'>
-           <p><a href='{{ external }}?{{ stock.cboe_id }}'>{{ stock.symbol }}</a><a><span></span></a></p>
-        </div>
-    {% endfor %}
+         
+    <div id='container'>Type in Symbol: <input name='symbol' value='' /></div>    
     </div>
-  </body>
-</html>
+</body>
+</html>?

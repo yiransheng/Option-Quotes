@@ -13,6 +13,11 @@ handlers:
 - url: /stylesheets
   static_dir: stylesheets
 
+
+- url: /scripts
+  static_dir: scripts
+
+
 - url: /pylibs
   static_dir: pylibs
 

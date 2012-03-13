@@ -95,3 +95,13 @@ class Stock(db.Model):
         q = db.Query(Stock)
         q.filter('symbol = ', symbol)
         return q.get()
+
+    def to_dict(self):
+        output = {}
+        SIMPLE_TYPES = (int, long, float, bool, dict, basestring)
+        for key, prop in self.properties().iteritems():
+            value = getattr(self, key)
+            if value is None or isinstance(value, SIMPLE_TYPES):
+                output[key] = value
+
+        return output

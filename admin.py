@@ -18,27 +18,40 @@ import defs
 
 class MainPage(request.WebPageHandler):
     def get(self):
-        stocks = Stock.get_all()
         template_values = {
             'title': defs.APP_NAME,
             'external': OPTIONS_CHAIN_HTML,
-            'stocks': stocks,
         }
         
         self.response.out.write(self.render_template('admin.html', \
                                                       template_values))
 class ModifyStockInfo(request.WebPageHandler):
+    def get(self):
+        symbol = self.request.get('symbol')
+        if not symbol:
+            stocks = Stock.get_all()
+            out = []
+            for stock in stocks:
+                out.append(stock.to_dict())
+        else:
+            stock = Stock.get(symbol)
+            out = stock.to_dict()
+            
+        
+        self.response.out.write(simplejson.dumps(out))
+
+        
     def post(self):
         symbol = self.request.get('symbol')
         action = self.request.get('action')
         if action == '2':
             self.update_all()
-            self.redirect('/admin/')
+            # self.redirect('/admin/')
         if action == '3':
             stock = Stock.get(symbol)
             if stock:
                 stock.delete()
-            self.redirect('/admin/')
+            # self.redirect('/admin/')
             
         if action == '1':
             cboeQuery = Cboe(symbol, True, True)
@@ -49,7 +62,7 @@ class ModifyStockInfo(request.WebPageHandler):
             else:
                 stock = cboeQuery.stock
             stock.put()
-            self.redirect('/admin/')
+            # self.redirect('/admin/')                
             
     def update_all(self):
         stocks = Stock.get_all()
